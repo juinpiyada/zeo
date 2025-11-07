@@ -1,7 +1,7 @@
-const { Pool, Client } = require('pg');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-// ────────────── POOL SETUP (for app queries) ──────────────
+// ────────────── POSTGRES POOL SETUP ──────────────
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
@@ -37,36 +37,13 @@ tgrnSgmFQdoVswYz9MaAiXz92shty8K2/rJYrvMiTo9JcjzN7nuF44Zf+0XyrGzT
 6Jjbrg==
 -----END CERTIFICATE-----`,
   },
+  max: 1, // ✅ Important for serverless
+  idleTimeoutMillis: 0,
+  connectionTimeoutMillis: 5000,
 });
 
-pool.on('error', (err) => {
-  console.error('☠️ Unexpected PG pool crash', err);
-  process.exit(-1);
+pool.on("error", (err) => {
+  console.error("☠️ PG Pool Error:", err);
 });
-
-// ────────────── OPTIONAL: DIRECT CONNECTION TEST ──────────────
-const testConnection = () => {
-  const client = new Client({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    ssl: {
-      rejectUnauthorized: true,
-      ca: pool.options.ssl.ca
-    }
-  });
-
-  client.connect()
-    .then(() => console.log("✨ Database connected like ancient prophecy ✨"))
-    .then(() => client.query("SELECT VERSION()"))
-    .then(res => console.log("⚡ PostgreSQL Version →", res.rows[0].version))
-    .catch(err => console.error("💀 Connection Failed →", err))
-    .finally(() => client.end());
-};
-
-// Run test once on startup
-testConnection();
 
 module.exports = pool;
