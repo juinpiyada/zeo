@@ -1,0 +1,28 @@
+# Ignore common build artifacts and dependencies
+/build/
+/dist/
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Ignore Node.js specific files
+node_modules/
+npm-debug.log
+.env
+
+# Ignore Python specific files
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore IDE-specific files (Example for VS Code)
+.vscode/
+
+# Ignore operating system generated files
+Thumbs.db
