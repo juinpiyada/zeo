@@ -1,16 +1,10 @@
 const { Pool } = require('pg');
-require('dotenv').config();
+require('dotenv').config();  // To load environment variables from the .env file
 
-// ────────────── POSTGRES POOL SETUP ──────────────
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: true,
-    ca: `-----BEGIN CERTIFICATE-----
+// SSL Certificate from the second block
+const sslConfig = {
+  rejectUnauthorized: true,
+  ca: `-----BEGIN CERTIFICATE-----
 MIIEUDCCArigAwIBAgIUHcLTp4XBlronfHosVErLLetlb3QwDQYJKoZIhvcNAQEM
 BQAwQDE+MDwGA1UEAww1NzY5ODE0NmEtZmY3Ni00NzRlLTkyYmUtNjA1NDA3YmU4
 ZjllIEdFTiAxIFByb2plY3QgQ0EwHhcNMjUxMTA3MTEyOTI0WhcNMzUxMTA1MTEy
@@ -35,15 +29,24 @@ BR0k0CIqCvu2829FKStb56cjRv38BaKg7O0sosZvqKoiR4GIbmmxPGc+1+ijn6jh
 zqcCT66ePU4LhiFm4kbDHjxKSx4nHO+ONgH1a5RksVGmpBz5Kdfell0rImkFk0IY
 tgrnSgmFQdoVswYz9MaAiXz92shty8K2/rJYrvMiTo9JcjzN7nuF44Zf+0XyrGzT
 6Jjbrg==
------END CERTIFICATE-----`,
-  },
-  max: 1, // ✅ Important for serverless
-  idleTimeoutMillis: 0,
-  connectionTimeoutMillis: 5000,
+-----END CERTIFICATE-----`
+};
+
+// Create a new pool instance with SSL settings
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: sslConfig  // Added SSL configuration
 });
 
-pool.on("error", (err) => {
-  console.error("☠️ PG Pool Error:", err);
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
 });
 
+// Export pool for external use
 module.exports = pool;
